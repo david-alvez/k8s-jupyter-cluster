@@ -33,5 +33,5 @@ spec:
       volumes:
       - name: iphyton-profile-volume
         persistentVolumeClaim:
-         claimName: myapp-nfs
+         claimName: pvc
     #    claimName: pvc01
