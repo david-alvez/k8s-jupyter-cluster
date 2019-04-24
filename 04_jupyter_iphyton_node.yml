@@ -33,4 +33,4 @@ spec:
       volumes:
       - name: iphyton-profile-volume
         persistentVolumeClaim:
-         claimName: pvc01
+         claimName: pvc

@@ -4,7 +4,7 @@ metadata:
   name: pv-nfs-share
 spec:
   capacity:
-    storage: 16M
+    storage: 256M
   accessModes:
     - ReadWriteOnce
   persistentVolumeReclaimPolicy: Recycle
