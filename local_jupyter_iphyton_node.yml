@@ -1,38 +1,37 @@
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
-  name: jupyter-iphyton-master
+  name: jupyter-iphyton-node
   labels:
-    app: jupyter-iphyton-master
+    app: jupyter-iphyton-node
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: jupyter-iphyton-master
+      app: jupyter-iphyton-node
   template:
     metadata:
       labels:
-        app: jupyter-iphyton-master
+        app: jupyter-iphyton-node
     spec:
     # running as root because of user jovyan
       securityContext:
         runAsUser: 0
       containers:
-      - name: jupyter-iphyton-master
+      - name: jupyter-iphyton-node
         image: dalvez/jupyter-tensorflow-ipyparallel:latest
     #   image: jupyter/tensorflow-notebook:latest
     #   env:
     #   - name: GRANT_SUDO
     #     value: "yes"
-        ports:
-        - containerPort: 8888
-        command: ["start-notebook.sh"]
-        args: ["--NotebookApp.token=''"]
+    #    ports:
+    #    - containerPort: 8888
+        command: ["/bin/bash","-c"]
+        args: ["ipengine --profile-dir=/home/jovyan/work"]
         volumeMounts:
         - name: iphyton-profile-volume
           mountPath: /home/jovyan/work
       volumes:
       - name: iphyton-profile-volume
         persistentVolumeClaim:
-         claimName: pvc
-    #    claimName: pvc01
+         claimName: local-pvc

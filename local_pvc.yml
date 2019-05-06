@@ -1,0 +1,13 @@
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: local-pvc
+  namespace: default
+spec:
+  storageClassName: standard
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 256M
