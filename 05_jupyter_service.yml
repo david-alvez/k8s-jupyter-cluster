@@ -8,6 +8,6 @@ spec:
     app: jupyter-iphyton-master
   ports:
   - protocol: TCP
-    nodePort: 30040
+    nodePort: 30050
     port: 8888
     targetPort: 8888

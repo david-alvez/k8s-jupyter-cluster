@@ -1,4 +1,4 @@
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: jupyter-iphyton-node
@@ -19,14 +19,15 @@ spec:
         runAsUser: 0
       containers:
       - name: jupyter-iphyton-node
-        image: jupyter/tensorflow-notebook:latest
+        image: dalvez/jupyter-tensorflow-ipyparallel:latest
+    #   image: jupyter/tensorflow-notebook:latest
     #   env:
     #   - name: GRANT_SUDO
     #     value: "yes"
-        ports:
-        - containerPort: 8888
-        command: ["start-notebook.sh"]
-        args: ["--NotebookApp.token=''"]
+    #    ports:
+    #    - containerPort: 8888
+        command: ["/bin/bash","-c"]
+        args: ["ipengine --profile-dir=/home/jovyan/work"]
         volumeMounts:
         - name: iphyton-profile-volume
           mountPath: /home/jovyan/work

@@ -1,4 +1,4 @@
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: jupyter-iphyton-master
@@ -20,14 +20,16 @@ spec:
       containers:
       - name: jupyter-iphyton-master
         image: dalvez/jupyter-tensorflow-ipyparallel:latest
-    #   image: jupyter/tensorflow-notebook:latest
-    #   env:
-    #   - name: GRANT_SUDO
-    #     value: "yes"
+        env:
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
         ports:
         - containerPort: 8888
-        command: ["start-notebook.sh"]
-        args: ["--NotebookApp.token=''"]
+        command: ["/bin/bash","-c","ipcontroller --ip=$(POD_IP) --location=jupyter-iphyton-master --profile-dir=/home/jovyan/work/ && start-notebook.sh --NotebookApp.token=''"]
+      #  args: ["ipcontroller --ip=$(POD_IP) --location=jupyter-iphyton-master --profile-dir=/home/jovyan/work/;start-notebook.sh --NotebookApp.token=''"]
+      #  args: ["ipcontroller --ip=$(POD_IP) --location=jupyter-iphyton-master --profile-dir=/home/jovyan/work/"]
         volumeMounts:
         - name: iphyton-profile-volume
           mountPath: /home/jovyan/work
@@ -35,4 +37,3 @@ spec:
       - name: iphyton-profile-volume
         persistentVolumeClaim:
          claimName: pvc
-    #    claimName: pvc01
