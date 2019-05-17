@@ -14,12 +14,12 @@ spec:
       labels:
         app: jupyter-iphyton-master
     spec:
-    # running as root because of user jovyan
-      securityContext:
-        runAsUser: 0
+    #  securityContext:
+    #    runAsUser: 0
       containers:
       - name: jupyter-iphyton-master
-        image: dalvez/jupyter-tensorflow-ipyparallel:latest
+        image: dalvez/jupyter-ipyparallel-kubectl:latest
+    #   imagePullPolicy: Always
         env:
         - name: POD_IP
           valueFrom:
@@ -27,12 +27,12 @@ spec:
               fieldPath: status.podIP
         ports:
         - containerPort: 8888
-        command: ["/bin/bash","-c","ipcontroller --ip=$(POD_IP) --location=jupyter-iphyton-master --profile-dir=/home/jovyan/work/ && start-notebook.sh --NotebookApp.token=''"]
+        command: ["/bin/bash","-c","start.sh"]
+      #  command: ["/bin/bash","-c","ipcontroller --ip=$(POD_IP) --location=jupyter-iphyton-master --profile-dir=/home/jupyter/work/ --log-to-file --log-level=DEBUG && jupyter notebook --ip=0.0.0.0 --NotebookApp.token=''"]
       #  args: ["ipcontroller --ip=$(POD_IP) --location=jupyter-iphyton-master --profile-dir=/home/jovyan/work/;start-notebook.sh --NotebookApp.token=''"]
-      #  args: ["ipcontroller --ip=$(POD_IP) --location=jupyter-iphyton-master --profile-dir=/home/jovyan/work/"]
         volumeMounts:
         - name: iphyton-profile-volume
-          mountPath: /home/jovyan/work
+          mountPath: /home/jupyter/work
       volumes:
       - name: iphyton-profile-volume
         persistentVolumeClaim:

@@ -8,7 +8,7 @@ RUN apt-get update && apt-get install -y python3 \
     sudo \
     curl
 
-#bionic still not available (11.05.2019)
+#Bionic still not available (11.05.2019)
 RUN curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
 RUN echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee -a /etc/apt/sources.list.d/kubernetes.list
 
@@ -26,4 +26,16 @@ WORKDIR /home/jupyter
 
 RUN mkdir -p /home/jupyter/work
 
-ENTRYPOINT ["jupyter", "notebook", "--ip=0.0.0.0", "--NotebookApp.token=''"]
+COPY scripts/start.sh /usr/local/bin
+
+USER root
+
+RUN chown jupyter /usr/local/bin/start.sh
+
+RUN chmod +x /usr/local/bin/start.sh
+
+USER jupyter
+
+ENTRYPOINT ["start.sh"]
+
+#ENTRYPOINT ["jupyter", "notebook", "--ip=0.0.0.0", "--NotebookApp.token=''"]
