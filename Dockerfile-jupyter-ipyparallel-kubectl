@@ -8,7 +8,7 @@ RUN apt-get update && apt-get install -y python3 \
     sudo \
     curl
 
-#Bionic still not available (11.05.2019)
+#Kubectl repo for Ubuntu Bionic still not available (11.05.2019)
 RUN curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
 RUN echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee -a /etc/apt/sources.list.d/kubernetes.list
 
@@ -19,6 +19,10 @@ RUN pip3 install jupyter
 RUN pip3 install ipyparallel
 
 RUN useradd -ms /bin/bash jupyter
+
+RUN adduser jupyter sudo
+
+RUN echo 'jupyter ALL=NOPASSWD: ALL' >> /etc/sudoers
 
 USER jupyter
 

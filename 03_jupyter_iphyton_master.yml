@@ -33,7 +33,19 @@ spec:
         volumeMounts:
         - name: iphyton-profile-volume
           mountPath: /home/jupyter/work
+        - name: kubectl-conf
+          mountPath: /etc/kubernetes/kubelet.conf
+          readOnly: true
+        - name: kubelet-certs
+          mountPath: /var/lib/kubelet/pki
+          readOnly: true
       volumes:
       - name: iphyton-profile-volume
         persistentVolumeClaim:
          claimName: pvc
+      - name: kubectl-conf
+        hostPath:
+          path: /etc/kubernetes/kubelet.conf
+      - name: kubelet-certs
+        hostPath:
+          path: /var/lib/kubelet/pki
