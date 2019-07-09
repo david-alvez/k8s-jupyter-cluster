@@ -1,4 +1,4 @@
 #!/bin/bash
 
 sudo apt-get update
-sudo apt install -y nfs-common
+sudo apt-get install -y nfs-common
