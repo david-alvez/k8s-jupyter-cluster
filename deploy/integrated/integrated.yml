@@ -1,0 +1,147 @@
+#01_pv-nfs.yml
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-nfs-share
+spec:
+  capacity:
+    storage: 256M
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Recycle
+  nfs:
+    server: 10.10.2.2
+    path: /export/data
+---
+#02_pvc.yml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 16M
+---
+#03_jupyter_iphyton_master.yml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jupyter-iphyton-master
+  labels:
+    app: jupyter-iphyton-master
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jupyter-iphyton-master
+  template:
+    metadata:
+      labels:
+        app: jupyter-iphyton-master
+    spec:
+    #  securityContext:
+    #    runAsUser: 0
+      containers:
+      - name: jupyter-iphyton-master
+        image: dalvez/jupyter-ipyparallel-kubectl:latest
+    #   imagePullPolicy: Always
+        env:
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        ports:
+        - containerPort: 8888
+        command: ["/bin/bash","-c","start.sh"]
+      #  command: ["/bin/bash","-c","ipcontroller --ip=$(POD_IP) --location=jupyter-iphyton-master --profile-dir=/home/jupyter/work/ --log-to-file --log-level=DEBUG && jupyter notebook --ip=0.0.0.0 --NotebookApp.token=''"]
+      #  args: ["ipcontroller --ip=$(POD_IP) --location=jupyter-iphyton-master --profile-dir=/home/jovyan/work/;start-notebook.sh --NotebookApp.token=''"]
+        volumeMounts:
+        - name: iphyton-profile-volume
+          mountPath: /home/jupyter/work
+        - name: kubectl-conf
+          mountPath: /etc/kubernetes/kubelet.conf
+          readOnly: true
+        - name: kubelet-certs
+          mountPath: /var/lib/kubelet/pki
+          readOnly: true
+      volumes:
+      - name: iphyton-profile-volume
+        persistentVolumeClaim:
+         claimName: pvc
+      - name: kubectl-conf
+        hostPath:
+          path: /etc/kubernetes/kubelet.conf
+      - name: kubelet-certs
+        hostPath:
+          path: /var/lib/kubelet/pki
+---
+#04_jupyter_iphyton_node.yml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jupyter-iphyton-node
+  labels:
+    app: jupyter-iphyton-node
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jupyter-iphyton-node
+  template:
+    metadata:
+      labels:
+        app: jupyter-iphyton-node
+    spec:
+    #  securityContext:
+    #    runAsUser: 0
+      containers:
+      - name: jupyter-iphyton-node
+        image: dalvez/jupyter-ipyparallel-kubectl:latest
+    #   image: jupyter/tensorflow-notebook:latest
+    #   env:
+    #   - name: GRANT_SUDO
+    #     value: "yes"
+    #    ports:
+    #    - containerPort: 8888
+        command: ["/bin/bash","-c","ipengine --profile-dir=/home/jupyter/work --log-to-file --log-level=DEBUG"]
+    #   args: ["ipengine --profile-dir=/home/jupyter/work"]
+        volumeMounts:
+        - name: iphyton-profile-volume
+          mountPath: /home/jupyter/work
+      volumes:
+      - name: iphyton-profile-volume
+        persistentVolumeClaim:
+         claimName: pvc
+---
+#05_jupyter_service.yml
+kind: Service
+apiVersion: v1
+metadata:
+  name: jupyter-iphyton-master
+spec:
+  type: NodePort
+  selector:
+    app: jupyter-iphyton-master
+  ports:
+  - protocol: TCP
+    nodePort: 30050
+    port: 8888
+    targetPort: 8888
+---
+#06_pod_service_account.yml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: pod-admin-rbac
+subjects:
+  - kind: ServiceAccount
+    name: default
+    namespace: default
+roleRef:
+  kind: ClusterRole
+  name: cluster-admin
+  apiGroup: rbac.authorization.k8s.io
