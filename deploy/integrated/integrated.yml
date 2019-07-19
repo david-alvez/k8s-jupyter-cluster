@@ -48,7 +48,7 @@ spec:
       containers:
       - name: jupyter-iphyton-master
         image: dalvez/jupyter-ipyparallel-kubectl:latest
-    #   imagePullPolicy: Always
+        imagePullPolicy: Always
         env:
         - name: POD_IP
           valueFrom:
@@ -101,7 +101,7 @@ spec:
       containers:
       - name: jupyter-iphyton-node
         image: dalvez/jupyter-ipyparallel-kubectl:latest
-    #   image: jupyter/tensorflow-notebook:latest
+        imagePullPolicy: Always
     #   env:
     #   - name: GRANT_SUDO
     #     value: "yes"
