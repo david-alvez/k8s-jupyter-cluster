@@ -19,7 +19,7 @@ spec:
       containers:
       - name: jupyter-iphyton-node
         image: dalvez/jupyter-ipyparallel-kubectl:latest
-    #   image: jupyter/tensorflow-notebook:latest
+        imagePullPolicy: Always
     #   env:
     #   - name: GRANT_SUDO
     #     value: "yes"
